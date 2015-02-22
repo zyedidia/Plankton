@@ -18,10 +18,10 @@ public class Main {
 	
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();
-		Node[] trainingData = listToArray(getTrainingData(false));
-		Node[] testingData = listToArray(getTestingData(false));
+		ProtoNode[] trainingData = listToArray(getTrainingData(true));
+		ProtoNode[] testingData = listToArray(getTestingData(true));
 
-		BoundaryForest forest = new BoundaryForest(15);
+		BoundaryForest forest = new BoundaryForest(10);
 
 		forest.train(trainingData);
 		
@@ -29,12 +29,13 @@ public class Main {
 		int correct = 0;
 		int total = 0;
 		for (int i = 0; i < testingData.length; i++) {
-			String result = forest.query(testingData[i]);
-			if (result.equals(testingData[i].label)) {
-				System.out.println("Correct");
+			if (i % 1000 == 0) {
+				System.out.printf("%5.1f done %5.1f correct\n", ((double) i / testingData.length * 100), 
+						((double) correct / total * 100));
+			}
+			String result = forest.query(new Node(testingData[i]));
+			if (result.equals(testingData[i].label())) {
 				correct++;
-			} else {
-				System.out.println("Incorrect");
 			}
 			total++;
 		}
@@ -44,8 +45,8 @@ public class Main {
 		System.out.println("Finished in " + ((end - start) / 1000.0) + " seconds");
 	}
 
-	public static ArrayList<Node> getTrainingData(boolean dataSerialized) {
-		ArrayList<Node> nodes = new ArrayList<Node>();
+	public static ArrayList<ProtoNode> getTrainingData(boolean dataSerialized) {
+		ArrayList<ProtoNode> nodes = new ArrayList<ProtoNode>();
 
 		if (dataSerialized) {
 			nodes = deserializeNodeList("train.ser");
@@ -56,7 +57,7 @@ public class Main {
 				for (int i = 0; i < dir.listFiles().length / 2; i++) {
 					File picture = dir.listFiles()[i];
 //					System.out.println(((double) j / trainingDir.listFiles().length * 100) + "% done");
-					nodes.add(new Node(dir.getName(),
+					nodes.add(new ProtoNode(dir.getName(),
 							getGrayScaleValues(getImg("train/pictures" + ext + "/"
 									+ dir.getName() + "/" + picture.getName()))));
 				}
@@ -70,8 +71,8 @@ public class Main {
 		return nodes;
 	}
 	
-	public static ArrayList<Node> getTestingData(boolean dataSerialized) {
-		ArrayList<Node> nodes = new ArrayList<Node>();
+	public static ArrayList<ProtoNode> getTestingData(boolean dataSerialized) {
+		ArrayList<ProtoNode> nodes = new ArrayList<ProtoNode>();
 		if (dataSerialized) {
 			nodes = deserializeNodeList("test.ser");
 		} else {
@@ -79,17 +80,19 @@ public class Main {
 			for (File dir : testDir.listFiles()) {
 				for (int i = dir.listFiles().length / 2; i < dir.listFiles().length; i++) {
 					File picture = dir.listFiles()[i];
-					nodes.add(new Node(dir.getName(), getGrayScaleValues(getImg("train/pictures" + ext + "/" + dir.getName() + "/" + picture.getName()))));
+					nodes.add(new ProtoNode(dir.getName(), getGrayScaleValues(getImg("train/pictures" + ext + "/" + dir.getName() + "/" + picture.getName()))));
 				}
 			}
 			
 			serializeNodeList(nodes, "test.ser");
 		}
+		
+		Collections.shuffle(nodes);
 
 		return nodes;
 	}
 	
-	public static void serializeNodeList(ArrayList<Node> n, String filename) {
+	public static void serializeNodeList(ArrayList<ProtoNode> n, String filename) {
         try {
         	FileOutputStream fileOut = new FileOutputStream(filename);
         	ObjectOutputStream out = new ObjectOutputStream(fileOut);
@@ -104,13 +107,13 @@ public class Main {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static ArrayList<Node> deserializeNodeList(String filename) {
-        ArrayList<Node> nodes = new ArrayList<Node>();
+	public static ArrayList<ProtoNode> deserializeNodeList(String filename) {
+        ArrayList<ProtoNode> nodes = new ArrayList<ProtoNode>();
 		try {
 			FileInputStream fileIn = new FileInputStream(filename);
 			ObjectInputStream in;
 			in = new ObjectInputStream(fileIn);
-			nodes = (ArrayList<Node>) in.readObject();
+			nodes = (ArrayList<ProtoNode>) in.readObject();
 			in.close();
 			fileIn.close();
 			System.out.println("Loaded " + filename);
@@ -122,8 +125,8 @@ public class Main {
         return nodes;
 	}
 	
-	public static Node[] listToArray(ArrayList<Node> nodes) {
-		return nodes.toArray(new Node[nodes.size()]);
+	public static ProtoNode[] listToArray(ArrayList<ProtoNode> nodes) {
+		return nodes.toArray(new ProtoNode[nodes.size()]);
 	}
 
 	public static Node[] shuffleArray(Node[] ar) {

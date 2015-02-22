@@ -50,7 +50,7 @@ public class Graphics {
 					label = colors[3];
 				}
 			}
-			nodes.add(new Node(label, new int[][] {{randX, randY}}));
+			nodes.add(new Node(new ProtoNode(label, new int[][] {{randX, randY}})));
 		}
 
 		return nodes.toArray(new Node[nodes.size()]);
@@ -68,7 +68,7 @@ public class Graphics {
 		drawNode(n);
 		for (Node child : n.children) {
 			draw.setPenColor(Color.black);
-			draw.line(n.img[0][0], n.img[0][1], child.img[0][0], child.img[0][1]);
+			draw.line(n.img()[0][0], n.img()[0][1], child.img()[0][0], child.img()[0][1]);
 			drawChildren(child);
 		}
 	}
@@ -77,7 +77,7 @@ public class Graphics {
 	    Field field;
 	    Color color = new Color(0, 0, 0);
 		try {
-			field = Class.forName("java.awt.Color").getField(n.label);
+			field = Class.forName("java.awt.Color").getField(n.label());
 			color = (Color) field.get(null);
 		} catch (NoSuchFieldException | SecurityException
 				| ClassNotFoundException | IllegalArgumentException | IllegalAccessException e) {
@@ -85,10 +85,10 @@ public class Graphics {
 		}
 		draw.setPenColor(color);
 		if (n.isRouter) {
-			draw.filledCircle(n.img[0][0], n.img[0][1], 15);
+			draw.filledCircle(n.img()[0][0], n.img()[0][1], 15);
 		} else {
-			draw.circle(n.img[0][0], n.img[0][1], 15);
+			draw.circle(n.img()[0][0], n.img()[0][1], 15);
 		}
-		draw.text(n.img[0][0], n.img[0][1], n.img[0][0] + ", " + n.img[0][1]);
+		draw.text(n.img()[0][0], n.img()[0][1], n.img()[0][0] + ", " + n.img()[0][1]);
 	}
 }

@@ -14,16 +14,22 @@ public class BoundaryForest {
 		trees = new BoundaryTree[numTrees];
 	}
 	
-	public void train(Node[] trainingData) {
+	public void train(ProtoNode[] trainingDataRaw) {
 		for (int j = 0; j < trees.length; j++) {
+			Node[] trainingData = new Node[trainingDataRaw.length];
+			for (int i = 0; i < trainingDataRaw.length; i++) {
+				trainingData[i] = new Node(trainingDataRaw[i]);
+			}
 			trainingData = shuffleArray(trainingData);
 			Node rootNode = trainingData[0];
 			BoundaryTree tree = new BoundaryTree(rootNode);
 			trees[j] = tree;
+			
+			System.out.println("Tree " + (j + 1) + "/" + trees.length);
 
 			for (int i = 1; i < trainingData.length; i++) {
 				tree.query(trainingData[i], true);
-				System.out.println("Tree " + j + "/" + trees.length + ": " + ((double) i / trainingData.length * 100));
+//				System.out.println("Tree " + j + "/" + trees.length + ": " + ((double) i / trainingData.length * 100));
 			}
 		}
 	}
@@ -32,7 +38,7 @@ public class BoundaryForest {
 		ArrayList<String> votes = new ArrayList<String>();
 		for (BoundaryTree tree : trees) {
 			Node result = tree.query(queryNode, false);
-			votes.add(result.label);
+			votes.add(result.label());
 		}
 		
 		return mostCommon(votes);

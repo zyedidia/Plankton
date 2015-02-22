@@ -5,21 +5,19 @@ import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 public class Node implements Serializable {
-	public static int maxChildren = 40;
-	public String label;
-	public int[][] img;
+	public static int maxChildren = Integer.MAX_VALUE;
+	public ProtoNode pNode;
 	public ArrayList<Node> children;
 	public boolean isRouter;
 
-	public Node(String label, int[][] arr) {
-		this.label = label;
-		this.img = arr;
+	public Node(ProtoNode pNode) {
+		this.pNode = pNode;
 		children = new ArrayList<Node>();
 	}
 	
 	public int distanceBetween(Node otherNode) {
-		int[][] img1 = this.img;
-		int[][] img2 = otherNode.img;
+		int[][] img1 = this.img();
+		int[][] img2 = otherNode.img();
 		int sum = 0;
 		for (int i = 0; i < img1.length; i++) {
 			for (int j = 0; j < img1[i].length; j++) {
@@ -32,7 +30,7 @@ public class Node implements Serializable {
 	}
 	
 	public boolean hasSameLabel(Node otherNode) {
-		return label.equals(otherNode.label);
+		return label().equals(otherNode.label());
 	}
 	
 	public void addChild(Node node) {
@@ -67,7 +65,15 @@ public class Node implements Serializable {
 		return closestNode.getClosestNode(queryNode);
 	}
 	
+	public String label() {
+		return pNode.label;
+	}
+	
+	public int[][] img() {
+		return pNode.img;
+	}
+	
 	public String toString() {
-		return label + ": " + img[0][0] + ", " + img[0][1];
+		return label() + ": " + img()[0][0] + ", " + img()[0][1];
 	}
 }
