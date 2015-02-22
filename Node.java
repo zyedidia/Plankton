@@ -3,7 +3,7 @@ package bfp;
 import java.util.ArrayList;
 
 public class Node {
-	public static int maxChildren = 2;
+	public static int maxChildren = 20;
 	public String label;
 	public int[][] img;
 	public ArrayList<Node> children;

@@ -60,19 +60,27 @@ public class ImageManipulator {
 	
 	public static void resizeDir(String dirName, int width, int height) {
 		String ext = "_" + width + "x" + height;
-		File dir = new File("train/" + dirName);
-		File newDir = new File("train/" + dirName + ext);
+		File dir = new File("train/pictures/" + dirName);
+		File newPicturesDir = new File("train/pictures" + ext);
+		newPicturesDir.mkdir();
+		File newDir = new File("train/pictures" + ext + "/" + dirName);
 		newDir.mkdir();
 		
-		System.out.println(newDir.getName());
+		System.out.println(dir.getAbsolutePath());
 		
 		for (File f : dir.listFiles()) {
-			String filename = f.getName().substring(0, f.getName().indexOf('.')) + ext + ".jpg";
-			writeImgToFile("train/" + newDir.getName() + "/" + filename, resizeImg(getImg(f.getAbsolutePath()), width, height));
+			String filename = f.getName();
+			System.out.println("train/pictures" + ext + "/" + newDir.getName() + "/" + filename);
+			writeImgToFile("train/pictures" + ext + "/" + newDir.getName() + "/" + filename, resizeImg(getImg(f.getAbsolutePath()), width, height));
 		}
 	}
 	
-
+	public static void resizeAllPictures(int width, int height) {
+		File trainDir = new File("train/pictures");
+		for (File dir : trainDir.listFiles()) {
+			resizeDir(dir.getName(), width, height);
+		}
+	}
 	
 	@SuppressWarnings("unused")
 	private static void print2dArray(int[][] arr) {
@@ -82,6 +90,10 @@ public class ImageManipulator {
 			}
 			System.out.println();
 		}
+	}
+	
+	public static void main(String[] args) {
+		resizeAllPictures(20, 20);
 	}
 }	
 

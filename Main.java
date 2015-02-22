@@ -1,95 +1,60 @@
 package bfp;
 
-import java.awt.Color;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Random;
+import static bfp.ImageManipulator.getGrayScaleValues;
+import static bfp.ImageManipulator.getImg;
 
-import edu.princeton.cs.introcs.Draw;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class Main {
-	static int numNodes = 20;
-	static String[] colors = {"red", "blue", "green", "orange"};
-	static Draw draw = new Draw("Boundary Graph");
-	static Random rand = new Random();
-	
 	public static void main(String[] args) {
-		draw.setCanvasSize(512, 512);
-		draw.setXscale(0, 511);
-		draw.setYscale(0, 511);
-		
 		Node[] trainingData = getTrainingData();
+
+		// Training time
 		Node rootNode = trainingData[0];
-		System.out.println(rootNode);
 		BoundaryTree tree = new BoundaryTree(rootNode);
 		for (int i = 1; i < trainingData.length; i++) {
-			System.out.println(trainingData[i]);
 			tree.query(trainingData[i], true);
+			System.out.println("Training: " + ((double) i / trainingData.length * 100) + "% done");
 		}
 		
-		drawTree(tree);
+		// Testing time
+		File test = new File("train/pictures_20x20");
+		int correct = 0;
+		int total = 0;
+		for (File dir : test.listFiles()) {
+			for (int i = dir.listFiles().length / 2; i < dir.listFiles().length; i++) {
+				File picture = dir.listFiles()[i];
+				Node query = new Node("", getGrayScaleValues(getImg("train/pictures_20x20/" + dir.getName() + "/" + picture.getName())));
+				Node result = tree.query(query, false);
+				if (result.label.equals(dir.getName())) {
+					System.out.println("Correct");
+					correct++;
+				} else {
+					System.out.println("Incorrect");
+				}
+				total++;
+			}
+		}
+		System.out.println("Got " + ((double) correct / total * 100) + "% correct");
 	}
 	
 	public static Node[] getTrainingData() {
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		
-		for (int i = 0; i < numNodes; i++) {
-			int randX = getRand(1, 510);
-			int randY = getRand(1, 510);
-			String label = "";
-			if (randX > 255) {
-				if (randY > 255) {
-					label = colors[0];
-				} else {
-					label = colors[1];
-				}
-			} else {
-				if (randY > 255) {
-					label = colors[2];
-				} else {
-					label = colors[3];
-				}
+		File trainingDir = new File("train/pictures_20x20/");
+		for (int j = 0; j < trainingDir.listFiles().length; j++) {
+			File dir = trainingDir.listFiles()[j];
+			for (int i = 0; i < dir.listFiles().length / 2; i++) {
+				File picture = dir.listFiles()[i];
+				System.out.println(((double) j / trainingDir.listFiles().length * 100) + "% done");
+				nodes.add(new Node(dir.getName(), getGrayScaleValues(getImg("train/pictures_20x20/" + dir.getName() + "/" + picture.getName()))));
 			}
-			nodes.add(new Node(label, new int[][] {{randX, randY}}));
 		}
-
+		
+		Collections.shuffle(nodes);
+		
 		return nodes.toArray(new Node[nodes.size()]);
-	}
-	
-	public static int getRand(int min, int max) {
-	    return rand.nextInt((max - min) + 1) + min;
-	}
-	
-	public static void drawTree(BoundaryTree tree) {
-		drawChildren(tree.root);
-	}
-	
-	public static void drawChildren(Node n) {
-		drawNode(n);
-		for (Node child : n.children) {
-			draw.setPenColor(Color.black);
-			draw.line(n.img[0][0], n.img[0][1], child.img[0][0], child.img[0][1]);
-			drawChildren(child);
-		}
-	}
-	
-	public static void drawNode(Node n) {
-	    Field field;
-	    Color color = new Color(0, 0, 0);
-		try {
-			field = Class.forName("java.awt.Color").getField(n.label);
-			color = (Color) field.get(null);
-		} catch (NoSuchFieldException | SecurityException
-				| ClassNotFoundException | IllegalArgumentException | IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		draw.setPenColor(color);
-		if (n.isRouter) {
-			draw.filledCircle(n.img[0][0], n.img[0][1], 15);
-		} else {
-			draw.circle(n.img[0][0], n.img[0][1], 15);
-		}
-		draw.text(n.img[0][0], n.img[0][1], n.img[0][0] + ", " + n.img[0][1]);
 	}
 }
