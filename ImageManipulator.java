@@ -93,7 +93,7 @@ public class ImageManipulator {
 	}
 	
 	public static void main(String[] args) {
-		resizeAllPictures(20, 20);
+		resizeAllPictures(32, 32);
 	}
 }	
 

@@ -8,7 +8,7 @@ import java.util.Random;
 import edu.princeton.cs.introcs.Draw;
 
 public class Graphics {
-	static int numNodes = 20;
+	static int numNodes = 10000;
 	static String[] colors = {"red", "blue", "green", "orange"};
 	static Draw draw = new Draw("Boundary Graph");
 	static Random rand = new Random();
@@ -81,7 +81,6 @@ public class Graphics {
 			color = (Color) field.get(null);
 		} catch (NoSuchFieldException | SecurityException
 				| ClassNotFoundException | IllegalArgumentException | IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		draw.setPenColor(color);

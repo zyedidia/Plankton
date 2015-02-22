@@ -1,9 +1,11 @@
 package bfp;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Node {
-	public static int maxChildren = 20;
+@SuppressWarnings("serial")
+public class Node implements Serializable {
+	public static int maxChildren = 40;
 	public String label;
 	public int[][] img;
 	public ArrayList<Node> children;
@@ -37,6 +39,7 @@ public class Node {
 		if (children.size() <= maxChildren) {
 			children.add(node);
 			if (children.size() == maxChildren) {
+				System.out.println("Router--------------------------------------------");
 				isRouter = true;
 			}
 		}
