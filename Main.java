@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Random;
 
 public class Main {
 	static String ext = "_32x32";
@@ -20,8 +20,9 @@ public class Main {
 		long start = System.currentTimeMillis();
 		ProtoNode[] trainingData = listToArray(getTrainingData(true));
 		ProtoNode[] testingData = listToArray(getTestingData(true));
+		String[] planktonTypes = getPlanktonTypes();
 
-		BoundaryForest forest = new BoundaryForest(10);
+		BoundaryForest forest = new BoundaryForest(25, planktonTypes);
 
 		forest.train(trainingData);
 		
@@ -39,6 +40,11 @@ public class Main {
 			}
 			total++;
 		}
+
+		for (int i = 0; i < forest.count.length; i++) {
+			System.out.println("Conversion " + i + " is " + ((double) forest.numRight[i] / forest.count[i]));
+		}
+
 		System.out.println("Got " + ((double) correct / total * 100) + "% correct");
 		
 		long end = System.currentTimeMillis();
@@ -56,7 +62,6 @@ public class Main {
 				File dir = trainingDir.listFiles()[j];
 				for (int i = 0; i < dir.listFiles().length / 2; i++) {
 					File picture = dir.listFiles()[i];
-//					System.out.println(((double) j / trainingDir.listFiles().length * 100) + "% done");
 					nodes.add(new ProtoNode(dir.getName(),
 							getGrayScaleValues(getImg("train/pictures" + ext + "/"
 									+ dir.getName() + "/" + picture.getName()))));
@@ -80,7 +85,9 @@ public class Main {
 			for (File dir : testDir.listFiles()) {
 				for (int i = dir.listFiles().length / 2; i < dir.listFiles().length; i++) {
 					File picture = dir.listFiles()[i];
-					nodes.add(new ProtoNode(dir.getName(), getGrayScaleValues(getImg("train/pictures" + ext + "/" + dir.getName() + "/" + picture.getName()))));
+					nodes.add(new ProtoNode(dir.getName(), 
+							getGrayScaleValues(getImg("train/pictures" + ext + "/" + dir.getName() 
+									+ "/" + picture.getName()))));
 				}
 			}
 			
@@ -101,7 +108,6 @@ public class Main {
         	fileOut.close();
         	System.out.printf("Serialized data is saved in " + filename);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -118,25 +124,26 @@ public class Main {
 			fileIn.close();
 			System.out.println("Loaded " + filename);
 		} catch (IOException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
         return nodes;
 	}
 	
+	public static String[] getPlanktonTypes() {
+		File dir = new File("train/pictures" + ext);
+		String[] types = new String[dir.listFiles().length];
+		for (int i = 0; i < dir.listFiles().length; i++) {
+			types[i] = dir.listFiles()[i].getName();
+		}
+		
+		System.out.println("Got types");
+		System.out.println(Arrays.toString(types));
+		
+		return types;
+	}
+	
 	public static ProtoNode[] listToArray(ArrayList<ProtoNode> nodes) {
 		return nodes.toArray(new ProtoNode[nodes.size()]);
-	}
-
-	public static Node[] shuffleArray(Node[] ar) {
-		Random rnd = new Random();
-		for (int i = ar.length - 1; i > 0; i--) {
-			int index = rnd.nextInt(i + 1);
-			Node a = ar[index];
-			ar[index] = ar[i];
-			ar[i] = a;
-		}
-		return ar;
 	}
 }

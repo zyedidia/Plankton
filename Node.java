@@ -37,7 +37,6 @@ public class Node implements Serializable {
 		if (children.size() <= maxChildren) {
 			children.add(node);
 			if (children.size() == maxChildren) {
-				System.out.println("Router--------------------------------------------");
 				isRouter = true;
 			}
 		}

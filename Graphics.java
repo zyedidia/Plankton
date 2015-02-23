@@ -8,7 +8,7 @@ import java.util.Random;
 import edu.princeton.cs.introcs.Draw;
 
 public class Graphics {
-	static int numNodes = 10000;
+	static int numNodes = 100000;
 	static String[] colors = {"red", "blue", "green", "orange"};
 	static Draw draw = new Draw("Boundary Graph");
 	static Random rand = new Random();
@@ -85,10 +85,10 @@ public class Graphics {
 		}
 		draw.setPenColor(color);
 		if (n.isRouter) {
-			draw.filledCircle(n.img()[0][0], n.img()[0][1], 15);
+			draw.filledCircle(n.img()[0][0], n.img()[0][1], 5);
 		} else {
-			draw.circle(n.img()[0][0], n.img()[0][1], 15);
+			draw.filledCircle(n.img()[0][0], n.img()[0][1], 5);
 		}
-		draw.text(n.img()[0][0], n.img()[0][1], n.img()[0][0] + ", " + n.img()[0][1]);
+//		draw.text(n.img()[0][0], n.img()[0][1], n.img()[0][0] + ", " + n.img()[0][1]);
 	}
 }

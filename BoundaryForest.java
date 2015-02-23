@@ -1,6 +1,7 @@
 package bfp;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +10,15 @@ import java.util.Random;
 
 public class BoundaryForest {
 	public BoundaryTree[] trees;
+	public int[] numRight;
+	public int[] count;
+	public String[] planktonTypes;
 	
-	public BoundaryForest(int numTrees) {
+	public BoundaryForest(int numTrees, String[] planktonTypes) {
 		trees = new BoundaryTree[numTrees];
+		numRight = new int[numTrees + 1];
+		count = new int[numTrees + 1];
+		this.planktonTypes = planktonTypes;
 	}
 	
 	public void train(ProtoNode[] trainingDataRaw) {
@@ -29,7 +36,6 @@ public class BoundaryForest {
 
 			for (int i = 1; i < trainingData.length; i++) {
 				tree.query(trainingData[i], true);
-//				System.out.println("Tree " + j + "/" + trees.length + ": " + ((double) i / trainingData.length * 100));
 			}
 		}
 	}
@@ -39,6 +45,13 @@ public class BoundaryForest {
 		for (BoundaryTree tree : trees) {
 			Node result = tree.query(queryNode, false);
 			votes.add(result.label());
+		}
+		
+		for (String s : planktonTypes) {
+			count[Collections.frequency(votes, s)] += 1;
+			if (s.equals(queryNode.label())) {
+				numRight[Collections.frequency(votes, s)] += 1;
+			}
 		}
 		
 		return mostCommon(votes);

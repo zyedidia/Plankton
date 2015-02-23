@@ -12,9 +12,9 @@ public class BoundaryTree {
 		if (isTraining) {
 			if (!result.hasSameLabel(queryNode)) {
 				result.addChild(queryNode);
-//				if (result.isRouter) {
-//					query(result, true);
-//				}
+				if (result.isRouter) {
+					query(result, true);
+				}
 			}
 		}
 		
